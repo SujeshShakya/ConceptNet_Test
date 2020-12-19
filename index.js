@@ -7,39 +7,33 @@ const port = 3000;
 app.use(express.json());
 app.use(cors());
 
-
 app.get('/', (req, res) => {
     
+if (process.argv.length < 2) {
+	console.log("Please provide search term");
+	process.exit(0);
+}
     (async () => {
         try {
-          const response = await axios.get('http://api.conceptnet.io/c/en')
-        var sorted =  response.data.edges.sort((a,b) => { 
-            //sorting of the edges by lengh of id 
-            //to do: sort by checking start, rel and end to form a hierarchy    
-            var aLength = a['@id'].length;
-                var bLength = b['@id'].length;
-                if(aLength < bLength){
-                    return -1;
-                }
-                if(aLength > bLength){
-                    return 0;
-                }
-              })
-              getHeirarchy(sorted);
-              res.json(sorted);
+            const term = process.argv[2];
+            console.log(term);
+          const  url = `http://api.conceptnet.io/query?rel=/r/IsA&start=/c/en/${term}`;
+          const response = await axios.get(url);
+          console.log(response);
+          //fetch based on response ChildTerm
+          //build recursive JSON
+          //to do: Construct new json based on the result.
+              res.json({});
         } catch (error) {
           console.log(error);
         }
       })();
 
-      function getHeirarchy(sorted){
-          console.log(sorted);
-          //loop all sorted and get hierarchy
-      }
+      // function searchTerm(term){
+      //     return  axios.get(url).then(result => result.data);
+      //     //loop all sorted and get hierarchy
+      // }
 })
-
-
-
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
